@@ -11,10 +11,20 @@ import ntpath
 import re
 
 '''
-Compute ratio beetween mean raster values inside one polygon and average value in another polygon. 
-'''
+Compute ratio beetween mean raster values inside one polygon and average value in another polygon.
 
-datalist=glob.glob('/net/tiampostorage/volume1/MyleneShare/Bigsur_asc/az1rng2/amplitude/*.tif')
+Note: NDVI images are in UTM, isce outputs in WGS84. Use respective polygons.
+'''
+#NDVI datasets
+datalist=glob.glob('/home/myja3483/Landslides/Bigsur/NDVI/NDVI_*.tif')
+slidepolygon='/home/myja3483/Landslides/Bigsur/QGIS/slide_outline.shp'
+refpolygon='/home/myja3483/Landslides/Bigsur/QGIS/ref_slope.shp'
+
+#radar datasets
+#datalist=glob.glob('/net/tiampostorage/volume1/MyleneShare/Bigsur_desc/az1rng2/coherence/*.tif') #descending coherence
+datalist=glob.glob('/net/tiampostorage/volume1/MyleneShare/Bigsur_desc/az1rng2/amplitude/*.tif') #descending amplitude
+#datalist=glob.glob('/net/tiampostorage/volume1/MyleneShare/Bigsur_asc/az1rng2/coherence/*.tif') #ascending coherence
+#datalist=glob.glob('/net/tiampostorage/volume1/MyleneShare/Bigsur_asc/az1rng2/amplitude/*.tif') #ascending amplitude
 slidepolygon='/home/myja3483/Landslides/Bigsur/QGIS/slide_outlineWGS84.shp'
 refpolygon='/home/myja3483/Landslides/Bigsur/QGIS/ref_slopeWGS84.shp'
 
@@ -22,8 +32,8 @@ values = pd.DataFrame(columns=["date","slide_median","slide_mean","ref_median","
 for fn in datalist:
     temp=pd.DataFrame(columns=["date","slide_median", "slide_mean","ref_median","ref_mean"])
     tif=ntpath.basename(fn)
-    slidestats=zonal_stats(slidepolygon,tif, stats="mean median")
-    refstats=zonal_stats(refpolygon,tif,stats="mean median")
+    slidestats=zonal_stats(slidepolygon,fn, stats="mean median")
+    refstats=zonal_stats(refpolygon,fn,stats="mean median")
     regex = re.compile(r'\d{8}')
     datestrings = regex.findall(tif)
     if len(datestrings) == 2:
@@ -45,12 +55,31 @@ median=values.slide_median.divide(values.ref_median)
 mean=values.slide_mean.divide(values.ref_mean)
 
 print(mean)
+plt.plot_date(values.date,median,'o')
+plt.xlabel("Time")
+plt.ylabel("Ratio")
+plt.show()
 
-#plt.plot_date(values.date,mean,'o')
-#plt.xlabel("Time")
-#plt.ylabel("Ratio")
-#plt.show()
 
-with open('asc_rel_amplitude.csv','w') as resultFile:
+fig = plt.subplots(figsize = (10,4))
+plt.plot_date(values.date, values.slide_mean, label='slide')
+plt.plot_date(values.date, values.ref_mean, label='surrounding slope')
+plt.legend()
+plt.xlabel('Time')
+plt.ylabel('NDVI')
+plt.show()
+#plt.savefig('NDVI_noratio.pdf')
+
+'''
+with open('NDVI.csv','w') as resultFile:
     wr=csv.writer(resultFile)
     wr.writerows(zip(values.date,median,mean))
+
+'''
+
+'''
+with open('desc_rel_coherence_coh0.45.csv','w') as resultFile:
+    wr=csv.writer(resultFile)
+    wr.writerows(zip(values.date,median,mean))
+
+'''
