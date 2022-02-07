@@ -6,7 +6,7 @@ import scipy.signal
 #initially: take mean of azimuth and mean of incidence angle for entire image.
 # eventually crop azimuth and incidence angle to aoi used by giant
 def crop2aoi():
-    return
+    pass
 ###############
 
 def read_los(fname):
