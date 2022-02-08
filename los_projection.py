@@ -27,7 +27,7 @@ def read_los(fname):
     band2 = raster.GetRasterBand(2)
     inc = band1.ReadAsArray()
     azi = band2.ReadAsArray()
-    return azi, inc
+    return inc, azi
 
 
 def rotate_azimuth(azi, direction = 'clockwise'):
