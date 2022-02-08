@@ -42,17 +42,17 @@ def rotate_azimuth(azi, direction = 'clockwise'):
 
     returns:
     theta:      azimuth counter clockwise from East (x-axis)
-    phi:        incidence angle from vertical
+
     '''
     azi = np.atleast_1d(azi)
     if direction == 'clockwise':
         if (azi < 0).all():
             raise ValueError ('Clockwise azimuth must be positive from North')
-        azi = (360-(azi-90))%360
+        theta = (360-(azi-90))%360
     else:
-        azi = azi * -1
-        azi = (360-(azi-90))%360
-    return azi
+        theta = azi * -1
+        theta = (360-(azi-90))%360
+    return theta
 
 
 def pol2cart(theta, phi, r=1):
