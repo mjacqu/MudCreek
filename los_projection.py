@@ -21,13 +21,14 @@ def read_los(fname):
     returns:
     inc (np.array)
     azi (np.array)
+    raster (gdal object)
     '''
     raster = gdal.Open(fname)
     band1 = raster.GetRasterBand(1)
     band2 = raster.GetRasterBand(2)
     inc = band1.ReadAsArray()
     azi = band2.ReadAsArray()
-    return inc, azi
+    return inc, azi, raster
 
 
 def rotate_azimuth(azi, direction = 'clockwise'):
@@ -87,6 +88,10 @@ def loadnfilter(fn, filter = None):
     '''
     Load slope (degress from horizontal) and aspect (degrees from N) tiff files
     and apply median filter.
+
+    return:
+    raster (np.array)
+    dataset (gdal object)
     '''
     dataset = gdal.Open(fn)
     raster = dataset.GetRasterBand(1).ReadAsArray()
@@ -95,7 +100,7 @@ def loadnfilter(fn, filter = None):
         filtered = scipy.signal.medfilt(raster, filter) # 11 cells ~110 m
         return filtered
     else:
-        return raster
+        return raster, dataset
 
 
 def slope_from_vertical(slope):
